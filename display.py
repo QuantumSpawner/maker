@@ -706,7 +706,7 @@ class Display:
     NUM_REFLOW_STAGES = len(REFLOW_STAGE)
 
     # (name, temperature point, time point)
-    PROFILES = [("Wikipedia", [MIN_TEMP, 150, 140, 200,
+    PROFILES = [("Wikipedia", [MIN_TEMP, 150, 160, 250,
                                MIN_TEMP], [0, 60, 160, 250, 350]),
                 ("Profile 2", [MIN_TEMP, 100, 150, 250,
                                MIN_TEMP], [0, 100, 200, 300, 400])]

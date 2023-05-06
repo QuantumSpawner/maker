@@ -46,7 +46,7 @@ TEMP_SLIDER = True
 PERIOD_SLIDER = True
 
 # message handler ##############################################################
-FAKE_I2C = True
+FAKE_I2C = False
 
 SLAVE_ADDRESS = 0x27
 TEMP_ADDRESS = ord('N')
