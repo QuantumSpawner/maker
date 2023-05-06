@@ -26,21 +26,22 @@ class MessageHandler:
             return
 
         self.__started = True
-        
-        if FAKE_I2C:            
-            print("temp_settings: " +
-                str(self.__reflow_oven_control.temp_setting.get()))
-            print("time_setting: " +
-                str(self.__reflow_oven_control.time_setting.get()))
-            
+
+        if FAKE_I2C:
+            print("Message Handler: temp_settings: " +
+                  str(self.__reflow_oven_control.temp_setting.get()))
+            print("Message Handler: time_setting: " +
+                  str(self.__reflow_oven_control.time_setting.get()))
+
         else:
             temp_setting = self.__reflow_oven_control.temp_setting.get()
             time_setting = self.__reflow_oven_control.time_setting.get()
             for i in range(5):
-                self.__i2c.write_word_data(SLAVE_ADDRESS, TEMP_SETTING_ADDRESS, temp_setting[i])
-            
-            self.__i2c.write_byte_data(
-                SLAVE_ADDRESS, START_COMMAND, START_COMMAND)
+                self.__i2c.write_word_data(SLAVE_ADDRESS, TEMP_SETTING_ADDRESS,
+                                           temp_setting[i])
+
+            self.__i2c.write_byte_data(SLAVE_ADDRESS, START_COMMAND,
+                                       START_COMMAND)
 
     def run(self):
         while not self.__reflow_oven_control.reset_event.is_set():
@@ -49,21 +50,26 @@ class MessageHandler:
                 self.__reflow_oven_control.time.put(self.__fake_time)
                 if self.__started:
                     self.__fake_time += 10
+                    if self.__fake_time > 100:
+                        self.__fake_time = 0
             else:
                 try:
                     self.__reflow_oven_control.temp.put(
-                        self.__i2c.read_word_data(SLAVE_ADDRESS, TEMP_ADDRESS)/100)
+                        self.__i2c.read_word_data(SLAVE_ADDRESS, TEMP_ADDRESS)
+                        / 100)
                     self.__reflow_oven_control.time.put(
                         self.__i2c.read_word_data(SLAVE_ADDRESS, TIME_ADDRESS))
-                
-                    
+
                 except Exception as e:
                     print(f"Error reading data from I2C: {e}")
-                    
+
             time.sleep(1)
-            
-        self.__i2c.write_byte_data(
-                SLAVE_ADDRESS, RESET_COMMAND, RESET_COMMAND)
+
+        if FAKE_I2C:
+            print("Message Handler: Resetting...")
+        else:
+            self.__i2c.write_byte_data(SLAVE_ADDRESS, RESET_COMMAND,
+                                       RESET_COMMAND)
 
     __i2c = None
 
@@ -74,4 +80,3 @@ class MessageHandler:
     __fake_time = 0
 
     __started = False
-    

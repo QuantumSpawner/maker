@@ -20,7 +20,8 @@ class SmartAssistant:
         self.__user_new_input = ""
 
     def __ai_interact(self):
-        # record audio for 5 seconds
+        self.__reflow_oven_control.smart_assist_prompt.put(
+            "Recording\naudio input")
         audio_data = record_audio(duration=5)
 
         if REPLAY_AUDIO:
@@ -101,9 +102,17 @@ class SmartAssistant:
         end_index = response.rfind("}")
         jason_response = response[start_index:end_index + 1]
         if PRINT_EVEYTHING:
-            print(f'Generated jason:\n{jason_response}')
+            print(f'Generated json:\n{jason_response}')
 
         data = json.loads(jason_response)
+        temp_setting = []
+        time_setting = []
+        for i in range(5):
+            temp_setting.append(data["target_temperature"][i]["temperature"])
+            time_setting.append(data["target_temperature"][i]["time"])
+        self.__reflow_oven_control.smart_assist_temp_setting.put(temp_setting)
+        self.__reflow_oven_control.smart_assist_time_setting.put(time_setting)
+
         if PRINT_EVEYTHING:
             print(f'Generated dict:\n{data}')
 
@@ -123,9 +132,10 @@ class SmartAssistant:
             self.__ai_interact()
 
             self.__reflow_oven_control.start_listen_event.clear()
-            self.__reflow_oven_control.finish_listen_event.is_set()
+
             self.__reflow_oven_control.smart_assist_prompt.put(
-                "Generating\nsmart output")
+                "Press button to\nstart listen")
+            self.__reflow_oven_control.finish_listen_event.set()
 
     __reflow_oven_control = None
 

@@ -74,3 +74,5 @@ class ReflowOvenControl:
     temp_setting = queue.Queue()
     time_setting = queue.Queue()
     smart_assist_prompt = queue.Queue()
+    smart_assist_temp_setting = queue.Queue()
+    smart_assist_time_setting = queue.Queue()

@@ -580,6 +580,13 @@ class Display:
             time = self.__reflow_oven_control.time.get()
 
             if self.__started:
+                if time < self.__real_time_point[-1]:
+                    tk.messagebox.showinfo(
+                        "Reflow Oven",
+                        "Reflow process completed. The oven will be reset.")
+                    self.__reflow_oven_control.reset_event.set()
+                    self.__shutdown()
+
                 self.__real_temp_point.append(temp)
                 self.__real_time_point.append(time)
 
@@ -602,6 +609,15 @@ class Display:
                 text=self.__reflow_oven_control.smart_assist_prompt.get())
 
         if self.__reflow_oven_control.finish_listen_event.is_set():
+            self.__temp_point = self.__reflow_oven_control.smart_assist_temp_setting.get(
+            )
+            self.__time_point = self.__reflow_oven_control.smart_assist_time_setting.get(
+            )
+            self.__update_temp_slider_bar_range()
+            self.__update_period_slider_bar_range()
+            self.__update_temp_chart()
+            self.__update_time_lable()
+
             self.__reflow_oven_control.finish_listen_event.clear()
             self.__smart_assist_start_listen_button.config(state=tk.ACTIVE)
         else:
