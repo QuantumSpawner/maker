@@ -51,12 +51,13 @@ PERIOD_SLIDER = True
 FAKE_I2C = False
 
 SLAVE_ADDRESS = 0x27
-TEMP_ADDRESS = ord('N')
-TIME_ADDRESS = ord('C')
-TEMP_SETTING_ADDRESS = ord('T')
-TIME_SETTING_ADDRESS = ord('t')
-START_COMMAND = ord('B')
-RESET_COMMAND = ord('E')
+TEMP_ADDRESS = 0x40
+TIME_ADDRESS = 0x50
+TEMP_SETTING_ADDRESS = 0x00
+TIME_SETTING_ADDRESS = 0x10
+START_COMMAND = 0x20
+RESET_COMMAND = 0x30
+profile_update = 0x60
 
 # smart assist #################################################################
 PRINT_EVEYTHING = False

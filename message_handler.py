@@ -36,10 +36,24 @@ class MessageHandler:
         else:
             temp_setting = self.__reflow_oven_control.temp_setting.get()
             time_setting = self.__reflow_oven_control.time_setting.get()
-            for i in range(5):
-                self.__i2c.write_word_data(SLAVE_ADDRESS, TEMP_SETTING_ADDRESS,
-                                           temp_setting[i])
 
+            for i in range(5):
+                self.__i2c.write_byte_data(
+                    SLAVE_ADDRESS, TEMP_SETTING_ADDRESS + 2 * i,
+                    (int(temp_setting[i]) // 256) & 0xFF)
+                self.__i2c.write_byte_data(SLAVE_ADDRESS,
+                                           TEMP_SETTING_ADDRESS + 2 * i + 1,
+                                           (int(temp_setting[i]) % 256) & 0xFF)
+            for i in range(5):
+                self.__i2c.write_byte_data(
+                    SLAVE_ADDRESS, TIME_SETTING_ADDRESS + 2 * i,
+                    (int(time_setting[i]) // 256) & 0xFF)
+                self.__i2c.write_byte_data(SLAVE_ADDRESS,
+                                           TIME_SETTING_ADDRESS + 2 * i + 1,
+                                           (int(time_setting[i]) % 256) & 0xFF)
+
+            self.__i2c.write_byte_data(SLAVE_ADDRESS, profile_update,
+                                       profile_update)
             self.__i2c.write_byte_data(SLAVE_ADDRESS, START_COMMAND,
                                        START_COMMAND)
 
