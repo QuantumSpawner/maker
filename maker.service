@@ -1,0 +1,13 @@
+[Unit]
+Description=Maker
+After=graphical.target
+
+[Service]
+User=pi
+Environment=DISPLAY=:0
+WorkingDirectory=/home/pi/Documents/maker
+ExecStart=/home/pi/Documents/maker/app_loop.sh
+Restart=on-abort
+
+[Install]
+WantedBy=graphical.target
