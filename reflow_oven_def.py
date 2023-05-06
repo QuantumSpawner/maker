@@ -18,6 +18,7 @@ TOTAL_TIME_LABEL = True
 STAGE_SCROLL_LABEL = True
 TEMP_SETTING_LABEL = True
 PERIOD_SETTING_LABEL = True
+SMART_ASSIST_PROMPT_LABEL = True
 
 # progress bar
 PROGRESS_BAR = True
@@ -37,6 +38,7 @@ MODE_BUTTON = True
 PROFILE_BUTTON = True
 STAGE_SCROLL_LEFT_BUTTON = True
 STAGE_SCROLL_RIGHT_BUTTON = True
+SMART_ASSIST_START_LISTEN_BUTTON = True
 START_BUTTON = True
 
 # sliders
@@ -56,13 +58,19 @@ TIME_SETTING_ADDRESS = ord('t')
 START_COMMAND = ord('B')
 RESET_COMMAND = ord('E')
 
+# smart assist #################################################################
+PRINT_EVEYTHING = False
+REPLAY_AUDIO = False
+
 
 # control ######################################################################
 class ReflowOvenControl:
     start_event = threading.Event()
     reset_event = threading.Event()
-    start_audio_event = threading.Event()
+    start_listen_event = threading.Event()
+    finish_listen_event = threading.Event()
     temp = queue.Queue()
     time = queue.Queue()
     temp_setting = queue.Queue()
     time_setting = queue.Queue()
+    smart_assist_prompt = queue.Queue()

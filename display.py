@@ -172,6 +172,12 @@ class Display:
                                              columnspan=12,
                                              sticky=tk.NSEW)
 
+        # add a smart assist prompt label to show the smart assist prompt to
+        # the main window
+        if LABELS and SMART_ASSIST_PROMPT_LABEL:
+            self.__smart_assist_prompt_label = tk.Label(self.main_window,
+                                                        font=("", 18))
+
         # progress bar #########################################################
         # add a progress bar for showing heating process to the main window
         if PROGRESS_BAR:
@@ -315,6 +321,14 @@ class Display:
                                                   columnspan=2,
                                                   sticky=tk.NSEW)
 
+        # add a smart assist start listen button to the main window
+        if BUTTONS and SMART_ASSIST_START_LISTEN_BUTTON:
+            self.__smart_assist_start_listen_button = tk.Button(
+                self.main_window,
+                command=self.__on_smart_assist_start_listen_button_click,
+                text="Start Listen",
+                font=("", 18))
+
         # add a start button to start heating to the main window
         if BUTTONS and START_BUTTON:
             self.__start_button = tk.Button(
@@ -403,24 +417,34 @@ class Display:
     def __on_wifi_button_click(self):
         if self.__wifi_connected:
             tk.messagebox.showinfo(
-                "WiFi", "WiFi is connected.\nSmart assissent is available.")
+                "WiFi", "WiFi is connected.\nSmart assistant is available.")
         else:
             tk.messagebox.showerror(
                 "WiFi",
-                "WiFi is not connected.\nSmart assissent is not available.")
+                "WiFi is not connected.\nSmart assistant is not available.")
 
     def __on_mode_button_click(self):
         if self.__smart_assist:
 
             self.__smart_assist = False
+
+            self.__show_smart_assist_settings(False)
+            self.__show_manual_settings(True)
+            self.__profile_button.config(state=tk.ACTIVE)
+
             self.__mode_button.config(text="Manual")
         elif self.__wifi_connected:
             self.__smart_assist = True
+
+            self.__show_manual_settings(False)
+            self.__show_smart_assist_settings(True)
+            self.__profile_button.config(state=tk.DISABLED)
+
             self.__mode_button.config(text="Smart Assistant")
         else:
             tk.messagebox.showerror(
                 "Smart Assistant",
-                "WiFi is not connected.\nSmart assissent is not available.")
+                "WiFi is not connected.\nSmart assistant is not available.")
 
     def __on_profile_button_click(self):
         self.__profile_index = (self.__profile_index + 1) % self.NUM_PROFILES
@@ -463,6 +487,11 @@ class Display:
 
         self.__stage_scroll_label.config(
             text=self.REFLOW_STAGE[self.__stage_index])
+
+    def __on_smart_assist_start_listen_button_click(self):
+        self.__reflow_oven_control.start_listen_event.set()
+        self.__smart_assist_start_listen_button.config(state=tk.DISABLED)
+        self.__period_update_smart_assist()
 
     def __on_start_button_click(self):
         if not self.__started:
@@ -534,7 +563,7 @@ class Display:
                 self.__smart_assist = False
                 tk.messagebox.showerror(
                     "Smart Assistant",
-                    "WiFi is not connected.\nSmart assissent is not available."
+                    "WiFi is not connected.\nSmart assistant is not available."
                 )
 
         self.main_window.after(10000, self.__periodic_check_wifi)
@@ -566,6 +595,17 @@ class Display:
                 text=f"Temp: {self.__real_temp_point[-1]}\N{DEGREE SIGN}C")
 
         self.main_window.after(1000, self.__period_update)
+
+    def __period_update_smart_assist(self):
+        if not self.__reflow_oven_control.smart_assist_prompt.empty():
+            self.__smart_assist_prompt_label.config(
+                text=self.__reflow_oven_control.smart_assist_prompt.get())
+
+        if self.__reflow_oven_control.finish_listen_event.is_set():
+            self.__reflow_oven_control.finish_listen_event.clear()
+            self.__smart_assist_start_listen_button.config(state=tk.ACTIVE)
+        else:
+            self.main_window.after(100, self.__period_update_smart_assist)
 
     # other functions ##########################################################
     def __shutdown_dialog_response(self, opt):
@@ -602,6 +642,70 @@ class Display:
         if self.__profile_index != -1:
             self.__profile_index = -1
             self.__profile_button.config(text="Custom")
+
+    def __show_manual_settings(self, show):
+        if show:
+            self.__stage_scroll_label.grid(row=6,
+                                           column=28,
+                                           rowspan=2,
+                                           columnspan=8,
+                                           sticky=tk.NSEW)
+            self.__temp_setting_label.grid(row=8,
+                                           column=26,
+                                           rowspan=2,
+                                           columnspan=12,
+                                           sticky=tk.NSEW)
+            self.__period_setting_label.grid(row=12,
+                                             column=26,
+                                             rowspan=2,
+                                             columnspan=12,
+                                             sticky=tk.NSEW)
+            self.__stage_scroll_left_button.grid(row=6,
+                                                 column=26,
+                                                 rowspan=2,
+                                                 columnspan=2,
+                                                 sticky=tk.NSEW)
+            self.__stage_scroll_right_button.grid(row=6,
+                                                  column=36,
+                                                  rowspan=2,
+                                                  columnspan=2,
+                                                  sticky=tk.NSEW)
+            self.__temp_slider.grid(row=10,
+                                    column=26,
+                                    rowspan=2,
+                                    columnspan=12,
+                                    sticky=tk.NSEW)
+            self.__period_slider.grid(row=14,
+                                      column=26,
+                                      rowspan=2,
+                                      columnspan=12,
+                                      sticky=tk.NSEW)
+        else:
+            self.__stage_scroll_label.grid_forget()
+            self.__temp_setting_label.grid_forget()
+            self.__period_setting_label.grid_forget()
+            self.__stage_scroll_left_button.grid_forget()
+            self.__stage_scroll_right_button.grid_forget()
+            self.__temp_slider.grid_forget()
+            self.__period_slider.grid_forget()
+
+    def __show_smart_assist_settings(self, show):
+        if show:
+            self.__smart_assist_prompt_label.config(
+                text="Press button to\nstart listen")
+            self.__smart_assist_prompt_label.grid(row=6,
+                                                  column=26,
+                                                  rowspan=5,
+                                                  columnspan=12,
+                                                  sticky=tk.NSEW)
+            self.__smart_assist_start_listen_button.grid(row=11,
+                                                         column=26,
+                                                         rowspan=5,
+                                                         columnspan=12,
+                                                         sticky=tk.NSEW)
+        else:
+            self.__smart_assist_prompt_label.grid_forget()
+            self.__smart_assist_start_listen_button.grid_forget()
 
     def __update_temp_point_value(self):
         if self.__temp_point[2] < self.__temp_point[1]:
@@ -733,6 +837,7 @@ class Display:
     __stage_index = 0
     __temp_setting_label = None
     __period_setting_label = None
+    __smart_assist_prompt_label = None
 
     # progress bar #############################################################
     __progress_bar = None
@@ -763,6 +868,7 @@ class Display:
     __scroll_left_button_image = None
     __stage_scroll_right_button = None
     __scroll_right_button_image = None
+    __smart_assist_start_listen_button = None
     __start_button = None
 
     # slider ###################################################################
