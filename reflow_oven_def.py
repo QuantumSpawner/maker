@@ -59,6 +59,15 @@ START_COMMAND = 0x20
 RESET_COMMAND = 0x30
 profile_update = 0x60
 
+# oven controller ##############################################################
+ADC_ADDRESS = 0x48
+RELAY_PIN = 17
+
+PID_DELTA_TIME = 1
+PID_KP = 10
+PID_KI = 0
+PID_KD = 0
+
 # smart assist #################################################################
 PRINT_EVEYTHING = False
 REPLAY_AUDIO = False
